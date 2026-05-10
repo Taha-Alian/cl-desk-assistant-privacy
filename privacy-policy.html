@@ -19,50 +19,117 @@
 <body>
 
 <h1>Privacy Policy &mdash; CL Desk Assistant</h1>
-<p class="updated">Last updated: 2026-05-05</p>
+<p class="updated">Last updated: 2026-05-10 (covers v1.2.0)</p>
 
 <p>
-  CL Desk Assistant (&ldquo;the extension&rdquo;) does not collect, transmit, sell, or share
-  any user data with any party.
+  CL Desk Assistant (&ldquo;the extension&rdquo;) does not collect, transmit, sell, share,
+  or store any user data outside the user&rsquo;s own browser. There is no telemetry,
+  no analytics, no tracking, and no third-party scripts.
 </p>
+
+<h2>What v1.2 ships</h2>
+<p>v1.2 keeps the same four productivity tools as v1.1 alongside Smart Refresh, with feature enhancements rather than new tools:</p>
+<ul>
+  <li><strong>Smart Refresh</strong> &mdash; auto-refresh queue views on a configurable interval.</li>
+  <li><strong>Find / Replace</strong> &mdash; in-editor find &amp; replace across the active reply.</li>
+  <li><strong>Word Alerts</strong> &mdash; user-defined keywords that highlight in the reply with severity-coded colors. <em>New in v1.2:</em> an optional two-tone audible alert plays when a Critical-severity keyword newly appears in the reply. The alert is enabled by default for new installs and can be turned off from the Word Alerts tab. Sound is synthesized in the browser via the Web Audio API; no audio files are downloaded.</li>
+  <li><strong>Snippets</strong> &mdash; reusable rich-text replies expandable via shortcut+Tab or manually, with variables that resolve at insertion time (<code>{{ticket.id}}</code>, <code>{{ticket.subject}}</code>, <code>{{client.name}}</code>, <code>{{client.email}}</code>, <code>{{user.name}}</code>, <code>{{date.today}}</code>). <em>New in v1.2:</em> inline images via paste/drop (PNG/JPEG/GIF only, downscaled to max 1024&thinsp;px and compressed in-browser; capped at 256&thinsp;KB per image, 2&thinsp;MB per snippet, 8 images per snippet); and a JSON Backup &amp; Restore card in Settings that exports your snippets, word-alert keywords, and preferences to a local file you save yourself, and re-imports the same shape on demand.</li>
+  <li><strong>Settings</strong> &mdash; default tab, keyboard shortcut link, reset controls, JSON backup &amp; restore.</li>
+</ul>
 
 <h2>What the extension stores</h2>
 <p>
-  All user-configurable settings are stored <strong>locally</strong> in your browser via the
+  All user-configurable data is stored <strong>locally</strong> in your browser via
   <a href="https://developer.chrome.com/docs/extensions/reference/api/storage"><code>chrome.storage</code></a>
-  API. These include:
+  (<code>local</code> for snippet bodies, <code>sync</code> for the smaller settings):
 </p>
 <ul>
-  <li>Refresh interval</li>
-  <li>CSS selector for the refresh target</li>
-  <li>Allowed URL prefixes</li>
-  <li>Refresh type (XHR vs. full page reload)</li>
-  <li>Startup behavior (resume last state / auto-start / paused)</li>
-  <li>The &ldquo;Only when Zendesk tab is active&rdquo; toggle</li>
-  <li>Whether the engine is currently running (Start / Stop state)</li>
+  <li>Smart Refresh settings (interval, allowed URL prefixes, refresh selector, refresh type, startup mode, active-tab gating). The runtime on/off state and tick counter are stored in <code>chrome.storage.local</code> on this device only and are not synced across browsers.</li>
+  <li>Word-alert keywords (text, severity, whole-word toggle, enabled state), the master enable/disable, and the audible-Critical-alert toggle.</li>
+  <li>Snippet library (name, optional shortcut, rich-text body, enabled state). Inline images are stored inside the snippet body as base64-encoded <code>data:</code> URLs &mdash; no separate image files are written, and no external image hosts are contacted.</li>
+  <li>Find/Replace last-used inputs (find text, replace text, case-sensitivity flag).</li>
+  <li>Extension preferences (default popup tab, etc.).</li>
 </ul>
 <p>
-  No personal information, ticket content, reply drafts, customer data, or browsing history is
-  read, stored, or transmitted by the extension.
+  The Backup &amp; Restore feature in the Settings tab is user-initiated only. When you click Export, the
+  extension serializes the items above into a JSON file and asks your browser to save it to your local
+  Downloads folder. When you click Import, you select a previously-exported JSON file from your local
+  disk; nothing is uploaded anywhere. AI conversation state, Find/Replace last-used values, and Smart
+  Refresh runtime state are deliberately excluded from both export and import.
+</p>
+<p>
+  None of this data leaves your browser. The extension does not connect to any
+  third-party server, does not send anything to the developer, and does not report
+  crashes or usage events.
 </p>
 
-<h2>What the extension does NOT do</h2>
+<h2>Network calls the extension makes</h2>
+<p>
+  The extension&rsquo;s only network calls are to your own Zendesk subdomain&rsquo;s REST
+  API, using your existing Zendesk session cookies (the same ones your browser
+  already sends to zendesk.com). These calls are made only when a snippet that
+  contains a ticket-, client-, or user-scoped variable is being expanded:
+</p>
 <ul>
-  <li>It does <strong>not</strong> make any network requests to remote servers.</li>
-  <li>It does <strong>not</strong> include analytics, telemetry, or tracking of any kind.</li>
-  <li>It does <strong>not</strong> load third-party scripts.</li>
-  <li>It does <strong>not</strong> read or modify ticket text, comments, or any other Zendesk content
-      beyond invoking the user-configured refresh action (a click on the user-selected element,
-      or a page reload).</li>
-  <li>It does <strong>not</strong> run on any site other than <code>https://*.zendesk.com/*</code>.</li>
+  <li><code>GET /api/v2/users/me.json</code> &mdash; agent name, for <code>{{user.name}}</code>.</li>
+  <li><code>GET /api/v2/tickets/&lt;id&gt;.json</code> &mdash; ticket subject, for <code>{{ticket.subject}}</code>.</li>
+  <li><code>GET /api/v2/users/&lt;requester_id&gt;.json</code> &mdash; requester name and email, for <code>{{client.name}}</code> and <code>{{client.email}}</code>.</li>
 </ul>
+<p>
+  Responses are kept in memory for 30 seconds and then discarded. They are never
+  written to disk, never transmitted elsewhere, and never shared with any third
+  party.
+</p>
+
+<h2>Where the extension runs</h2>
+<p>The extension&rsquo;s content scripts run on:</p>
+<ul>
+  <li><code>https://*.zendesk.com/*</code> &mdash; the primary Zendesk Support UI.</li>
+  <li><code>https://*.cloudlinux.com/*</code> and <code>https://*.zdusercontent.com/*</code>
+      &mdash; only inside iframes that Zendesk embeds within ticket views (CloudLinux Doctor diagnostic
+      reports linked from tickets, and Zendesk-hosted ticket attachments). Content from these iframes is
+      inspected only to highlight word-alert keywords and to detect snippet shortcut typing. None of it
+      is transmitted off-device or stored.</li>
+</ul>
+<p>
+  One content script (<code>zendesk-mainworld.js</code>) runs in the page&rsquo;s main JavaScript world
+  rather than the extension&rsquo;s isolated world. This is required to access Zendesk&rsquo;s
+  CKEditor 5 reply composer via its model API (the editor ignores DOM mutations from isolated content
+  scripts). The main-world script communicates with the rest of the extension only via
+  <code>window.postMessage</code> using a typed protocol; it makes no network requests, never reads
+  <code>chrome.storage</code>, and imports no third-party libraries.
+</p>
 
 <h2>Permissions</h2>
 <ul>
-  <li><code>storage</code> &mdash; to save your refresh settings between browser sessions.</li>
-  <li>Host access for <code>https://*.zendesk.com/*</code> &mdash; to inject the refresh action on
-      Zendesk pages and to read the page URL for user-defined per-view targeting.</li>
+  <li><code>storage</code> &mdash; to persist snippets, word-alert keywords, and settings on this device.</li>
+  <li><code>offscreen</code> <em>(new in v1.2)</em> &mdash; to create a hidden, non-visible extension page used solely to play the optional Word Alerts Critical-match beep through the Web Audio API. The offscreen page is created with the documented <code>AUDIO_PLAYBACK</code> reason, has no DOM-visible UI, makes no network requests, accesses no user data, and exists only to host an oscillator-based two-tone synthesis routine. It is needed because Chrome MV3 content scripts cannot reliably play Web Audio under the autoplay policy.</li>
+  <li>Host access for <code>https://*.zendesk.com/*</code> &mdash; to inject the productivity tools
+      onto your Zendesk subdomain and to call the Zendesk REST API for variable resolution.
+      Cross-domain content-script matches for <code>cloudlinux.com</code> and
+      <code>zdusercontent.com</code> are declared on individual content scripts to enable iframe
+      coverage for keyword highlighting and snippet shortcut detection; they are not requested as
+      broad host permissions, and the extension does not fetch from those origins.</li>
 </ul>
+
+<h2>What the extension does NOT do</h2>
+<ul>
+  <li><strong>No AI features</strong> ship in v1.2. No prompts are sent to any AI service. No third-party AI SDK (Anthropic, OpenAI, etc.) is bundled into the production build.</li>
+  <li>No analytics, no telemetry, no crash reporting, no user-event tracking.</li>
+  <li>No third-party scripts loaded at runtime.</li>
+  <li>No outbound network calls outside your Zendesk subdomain.</li>
+  <li>No advertising, profiling, or creditworthiness usage of any data.</li>
+  <li>No data sold or transferred to any third party.</li>
+</ul>
+
+<h2>Keyboard shortcut</h2>
+<p>
+  The extension declares a single default keyboard shortcut, <code>Alt+Shift+Z</code>, mapped to
+  Chrome&rsquo;s standard <code>_execute_action</code> command to open the popup. You can change or
+  remove it at any time from
+  <a href="chrome://extensions/shortcuts"><code>chrome://extensions/shortcuts</code></a>. No other
+  keystrokes are captured or recorded.
+</p>
 
 <h2>Contact</h2>
 <p>
