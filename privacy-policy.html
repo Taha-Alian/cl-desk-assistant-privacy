@@ -19,7 +19,7 @@
 <body>
 
 <h1>Privacy Policy &mdash; CL Desk Assistant</h1>
-<p class="updated">Last updated: 2026-05-10 (covers v1.2.0)</p>
+<p class="updated">Last updated: 2026-05-11 (covers v1.3.0)</p>
 
 <p>
   CL Desk Assistant (&ldquo;the extension&rdquo;) does not collect, transmit, sell, share,
@@ -27,13 +27,19 @@
   no analytics, no tracking, and no third-party scripts.
 </p>
 
-<h2>What v1.2 ships</h2>
-<p>v1.2 keeps the same four productivity tools as v1.1 alongside Smart Refresh, with feature enhancements rather than new tools:</p>
+<h2>What v1.3 ships</h2>
+<p>v1.3 keeps the same four productivity tools as v1.2, with feature enhancements rather than new tools:</p>
 <ul>
-  <li><strong>Smart Refresh</strong> &mdash; auto-refresh queue views on a configurable interval.</li>
-  <li><strong>Find / Replace</strong> &mdash; in-editor find &amp; replace across the active reply.</li>
-  <li><strong>Word Alerts</strong> &mdash; user-defined keywords that highlight in the reply with severity-coded colors. <em>New in v1.2:</em> an optional two-tone audible alert plays when a Critical-severity keyword newly appears in the reply. The alert is enabled by default for new installs and can be turned off from the Word Alerts tab. Sound is synthesized in the browser via the Web Audio API; no audio files are downloaded.</li>
-  <li><strong>Snippets</strong> &mdash; reusable rich-text replies expandable via shortcut+Tab or manually, with variables that resolve at insertion time (<code>{{ticket.id}}</code>, <code>{{ticket.subject}}</code>, <code>{{client.name}}</code>, <code>{{client.email}}</code>, <code>{{user.name}}</code>, <code>{{date.today}}</code>). <em>New in v1.2:</em> inline images via paste/drop (PNG/JPEG/GIF only, downscaled to max 1024&thinsp;px and compressed in-browser; capped at 256&thinsp;KB per image, 2&thinsp;MB per snippet, 8 images per snippet); and a JSON Backup &amp; Restore card in Settings that exports your snippets, word-alert keywords, and preferences to a local file you save yourself, and re-imports the same shape on demand.</li>
+  <li><strong>Smart Refresh</strong> &mdash; auto-refresh queue views on a configurable interval. <em>New in v1.3:</em> a catch-up refresh fires immediately when the tab becomes visible again after being hidden, so the queue isn&rsquo;t stale on return. The catch-up only re-runs the same in-page refresh action (clicking the existing refresh button, or reloading the page) &mdash; no new network behavior.</li>
+  <li><strong>Find / Replace</strong> &mdash; in-editor find &amp; replace across the active reply. <em>New in v1.3:</em> pressing &ldquo;Replace&rdquo; now walks matches sequentially (replace current, auto-advance to next) instead of always replacing the leftmost match.</li>
+  <li><strong>Word Alerts</strong> &mdash; user-defined keywords that highlight in the reply with severity-coded colors, plus an optional two-tone audible alert when a Critical-severity match newly appears (sound is synthesized in-browser via the Web Audio API; no audio files are downloaded). <em>New in v1.3:</em> two built-in policy detectors, both enabled by default, both treated as Critical:
+    <ul>
+      <li><em>Detect ChatGPT referral/source links</em> &mdash; locally scans <code>&lt;a href&gt;</code> values in the open ticket for the substrings <code>chatgpt.com</code> and <code>utm_source=chatgpt</code>. No external lookup, no LLM call, no network traffic; the match is a plain regex on the href string.</li>
+      <li><em>Detect AI-style symbols/punctuation</em> &mdash; locally scans visible ticket text for a fixed list of glyphs commonly produced by LLM-drafted output (em dash, ellipsis, reference mark, diamonds, pointer, arrow, small squares, checkmarks). No external lookup, no LLM call; the match is a plain character-class regex.</li>
+    </ul>
+    These detectors are <strong>not</strong> AI features in the &ldquo;sends prompts to an AI service&rdquo; sense &mdash; they are deterministic, local, pattern-based matchers that flag potential AI-content tells before the agent sends a reply. No SDK from any AI provider is bundled into the production build, and no detector result is transmitted off-device.
+  </li>
+  <li><strong>Snippets</strong> &mdash; reusable rich-text replies expandable via shortcut+Tab or manually, with variables that resolve at insertion time (<code>{{ticket.id}}</code>, <code>{{ticket.subject}}</code>, <code>{{client.name}}</code>, <code>{{client.email}}</code>, <code>{{user.name}}</code>, <code>{{date.today}}</code>), inline images via paste/drop (PNG/JPEG/GIF only, downscaled to max 1024&thinsp;px and compressed in-browser; capped at 256&thinsp;KB per image, 2&thinsp;MB per snippet, 8 images per snippet), and a JSON Backup &amp; Restore card in Settings that exports your snippets, word-alert keywords, Find/Replace last-used inputs, and preferences to a local file you save yourself, and re-imports the same shape on demand.</li>
   <li><strong>Settings</strong> &mdash; default tab, keyboard shortcut link, reset controls, JSON backup &amp; restore.</li>
 </ul>
 
@@ -45,7 +51,7 @@
 </p>
 <ul>
   <li>Smart Refresh settings (interval, allowed URL prefixes, refresh selector, refresh type, startup mode, active-tab gating). The runtime on/off state and tick counter are stored in <code>chrome.storage.local</code> on this device only and are not synced across browsers.</li>
-  <li>Word-alert keywords (text, severity, whole-word toggle, enabled state), the master enable/disable, and the audible-Critical-alert toggle.</li>
+  <li>Word-alert keywords (text, severity, whole-word toggle, enabled state), the master enable/disable, the audible-Critical-alert toggle, and the two built-in AI-content-detector toggles introduced in v1.3.</li>
   <li>Snippet library (name, optional shortcut, rich-text body, enabled state). Inline images are stored inside the snippet body as base64-encoded <code>data:</code> URLs &mdash; no separate image files are written, and no external image hosts are contacted.</li>
   <li>Find/Replace last-used inputs (find text, replace text, case-sensitivity flag).</li>
   <li>Extension preferences (default popup tab, etc.).</li>
@@ -54,8 +60,9 @@
   The Backup &amp; Restore feature in the Settings tab is user-initiated only. When you click Export, the
   extension serializes the items above into a JSON file and asks your browser to save it to your local
   Downloads folder. When you click Import, you select a previously-exported JSON file from your local
-  disk; nothing is uploaded anywhere. AI conversation state, Find/Replace last-used values, and Smart
-  Refresh runtime state are deliberately excluded from both export and import.
+  disk; nothing is uploaded anywhere. Smart Refresh runtime state (running/stopped, tick counter) is
+  deliberately excluded from both export and import as per-device runtime state. <em>Changed in v1.3:</em>
+  Find/Replace last-used inputs are now included in the backup so a new-device restore brings them along.
 </p>
 <p>
   None of this data leaves your browser. The extension does not connect to any
@@ -114,7 +121,7 @@
 
 <h2>What the extension does NOT do</h2>
 <ul>
-  <li><strong>No AI features</strong> ship in v1.2. No prompts are sent to any AI service. No third-party AI SDK (Anthropic, OpenAI, etc.) is bundled into the production build.</li>
+  <li><strong>No AI-service calls</strong> are made by any feature in v1.3. The v1.3 built-in &ldquo;AI-content detectors&rdquo; in Word Alerts are local pattern matchers (regex against href strings and a fixed glyph set in visible text), not calls to any AI service. No prompts are sent to any AI provider. No third-party AI SDK (Anthropic, OpenAI, etc.) is bundled into the production build.</li>
   <li>No analytics, no telemetry, no crash reporting, no user-event tracking.</li>
   <li>No third-party scripts loaded at runtime.</li>
   <li>No outbound network calls outside your Zendesk subdomain.</li>
