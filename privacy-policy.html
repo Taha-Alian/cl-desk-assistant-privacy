@@ -19,7 +19,7 @@
 <body>
 
 <h1>Privacy Policy &mdash; CL Desk Assistant</h1>
-<p class="updated">Last updated: 2026-05-11 (covers v1.3.0)</p>
+<p class="updated">Last updated: 2026-05-12 (covers v1.4.0)</p>
 
 <p>
   CL Desk Assistant (&ldquo;the extension&rdquo;) does not collect, transmit, sell, share,
@@ -39,7 +39,7 @@
     </ul>
     These detectors are <strong>not</strong> AI features in the &ldquo;sends prompts to an AI service&rdquo; sense &mdash; they are deterministic, local, pattern-based matchers that flag potential AI-content tells before the agent sends a reply. No SDK from any AI provider is bundled into the production build, and no detector result is transmitted off-device.
   </li>
-  <li><strong>Snippets</strong> &mdash; reusable rich-text replies expandable via shortcut+Tab or manually, with variables that resolve at insertion time (<code>{{ticket.id}}</code>, <code>{{ticket.subject}}</code>, <code>{{client.name}}</code>, <code>{{client.email}}</code>, <code>{{user.name}}</code>, <code>{{date.today}}</code>), inline images via paste/drop (PNG/JPEG/GIF only, downscaled to max 1024&thinsp;px and compressed in-browser; capped at 256&thinsp;KB per image, 2&thinsp;MB per snippet, 8 images per snippet), and a JSON Backup &amp; Restore card in Settings that exports your snippets, word-alert keywords, Find/Replace last-used inputs, and preferences to a local file you save yourself, and re-imports the same shape on demand.</li>
+  <li><strong>Snippets</strong> &mdash; reusable rich-text replies expandable via shortcut+Tab or manually, with variables that resolve at insertion time (<code>{{ticket.id}}</code>, <code>{{ticket.subject}}</code>, <code>{{client.name}}</code>, <code>{{client.email}}</code>, <code>{{user.name}}</code>, <code>{{date.today}}</code>), inline images via paste/drop (PNG/JPEG/GIF/WEBP accepted; WEBP and GIF are transcoded in-browser to JPEG or PNG so the output set stays narrow for downstream email-client compatibility; all images downscaled to max 1024&thinsp;px and compressed in-browser; capped at 256&thinsp;KB per image, 2&thinsp;MB per snippet, 8 images per snippet), and a JSON Backup &amp; Restore card in Settings that exports your snippets, word-alert keywords, Find/Replace last-used inputs, and preferences to a local file you save yourself, and re-imports the same shape on demand.</li>
   <li><strong>Settings</strong> &mdash; default tab, keyboard shortcut link, reset controls, JSON backup &amp; restore.</li>
 </ul>
 
