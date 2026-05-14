@@ -19,7 +19,7 @@
 <body>
 
 <h1>Privacy Policy &mdash; CL Desk Assistant</h1>
-<p class="updated">Last updated: 2026-05-12 (covers v1.4.0)</p>
+<p class="updated">Last updated: 2026-05-14 (covers v1.4.0)</p>
 
 <p>
   CL Desk Assistant (&ldquo;the extension&rdquo;) does not collect, transmit, sell, share,
@@ -27,15 +27,16 @@
   no analytics, no tracking, and no third-party scripts.
 </p>
 
-<h2>What v1.3 ships</h2>
-<p>v1.3 keeps the same four productivity tools as v1.2, with feature enhancements rather than new tools:</p>
+<h2>What v1.4 ships</h2>
+<p>v1.4 keeps the same four productivity tools as v1.2 and v1.3, with feature enhancements layered on top rather than new tools. v1.4 itself adds WEBP source-file support to the Snippets image pipeline, narrows the v1.3 built-in AI-content detectors to scope to the active reply composer only (URL-gated to ticket-editing and knowledge-base-editing pages), and adds one new built-in detector. <em>New in vX</em> markers below show which version introduced each piece.</p>
 <ul>
   <li><strong>Smart Refresh</strong> &mdash; auto-refresh queue views on a configurable interval. <em>New in v1.3:</em> a catch-up refresh fires immediately when the tab becomes visible again after being hidden, so the queue isn&rsquo;t stale on return. The catch-up only re-runs the same in-page refresh action (clicking the existing refresh button, or reloading the page) &mdash; no new network behavior.</li>
   <li><strong>Find / Replace</strong> &mdash; in-editor find &amp; replace across the active reply. <em>New in v1.3:</em> pressing &ldquo;Replace&rdquo; now walks matches sequentially (replace current, auto-advance to next) instead of always replacing the leftmost match.</li>
-  <li><strong>Word Alerts</strong> &mdash; user-defined keywords that highlight in the reply with severity-coded colors, plus an optional two-tone audible alert when a Critical-severity match newly appears (sound is synthesized in-browser via the Web Audio API; no audio files are downloaded). <em>New in v1.3:</em> two built-in policy detectors, both enabled by default, both treated as Critical:
+  <li><strong>Word Alerts</strong> &mdash; user-defined keywords that highlight matches across the active Zendesk page (the agent&rsquo;s reply, ticket descriptions, customer messages, knowledge-base content) with severity-coded colors, plus an optional two-tone audible alert when a Critical-severity match newly appears (sound is synthesized in-browser via the Web Audio API; no audio files are downloaded). The built-in policy detectors below are scoped more narrowly than user keywords &mdash; they scan only the active reply composer (the CKEditor instance inside <code>/agent/</code> and <code>/knowledge/</code> URL paths), so customer-pasted content, prior ticket comments, and Zendesk&rsquo;s own UI text never trigger them:
     <ul>
-      <li><em>Detect ChatGPT referral/source links</em> &mdash; locally scans <code>&lt;a href&gt;</code> values in the open ticket for the substrings <code>chatgpt.com</code> and <code>utm_source=chatgpt</code>. No external lookup, no LLM call, no network traffic; the match is a plain regex on the href string.</li>
-      <li><em>Detect AI-style symbols/punctuation</em> &mdash; locally scans visible ticket text for a fixed list of glyphs commonly produced by LLM-drafted output (em dash, ellipsis, reference mark, diamonds, pointer, arrow, small squares, checkmarks). No external lookup, no LLM call; the match is a plain character-class regex.</li>
+      <li><em>Detect ChatGPT referral/source links</em> (Critical, <em>new in v1.3, composer-scoped in v1.4</em>) &mdash; locally scans <code>&lt;a href&gt;</code> values inside the composer for the substrings <code>chatgpt.com</code> and <code>utm_source=chatgpt</code>. No external lookup, no LLM call, no network traffic; the match is a plain regex on the href string.</li>
+      <li><em>Detect AI-style symbols/punctuation</em> (Critical, <em>new in v1.3, composer-scoped in v1.4</em>) &mdash; locally scans composer text for a fixed list of glyphs commonly produced by LLM-drafted output (em dash, reference mark, diamonds, pointer, arrow, small squares, checkmarks). No external lookup, no LLM call; the match is a plain character-class regex.</li>
+      <li><em>Detect excessive empty lines</em> (Medium, <em>new in v1.4</em>) &mdash; locally counts runs of three or more consecutive empty paragraph-level elements inside the composer (the most common copy/paste-from-AI artifact). Medium severity does not produce an audible beep. No external lookup, no LLM call.</li>
     </ul>
     These detectors are <strong>not</strong> AI features in the &ldquo;sends prompts to an AI service&rdquo; sense &mdash; they are deterministic, local, pattern-based matchers that flag potential AI-content tells before the agent sends a reply. No SDK from any AI provider is bundled into the production build, and no detector result is transmitted off-device.
   </li>
@@ -51,7 +52,7 @@
 </p>
 <ul>
   <li>Smart Refresh settings (interval, allowed URL prefixes, refresh selector, refresh type, startup mode, active-tab gating). The runtime on/off state and tick counter are stored in <code>chrome.storage.local</code> on this device only and are not synced across browsers.</li>
-  <li>Word-alert keywords (text, severity, whole-word toggle, enabled state), the master enable/disable, the audible-Critical-alert toggle, and the two built-in AI-content-detector toggles introduced in v1.3.</li>
+  <li>Word-alert keywords (text, severity, whole-word toggle, enabled state), the master enable/disable, the audible-Critical-alert toggle, and the three built-in AI-content-detector toggles (two introduced in v1.3 &mdash; ChatGPT referral links and AI-style symbols; one introduced in v1.4 &mdash; excessive empty lines).</li>
   <li>Snippet library (name, optional shortcut, rich-text body, enabled state). Inline images are stored inside the snippet body as base64-encoded <code>data:</code> URLs &mdash; no separate image files are written, and no external image hosts are contacted.</li>
   <li>Find/Replace last-used inputs (find text, replace text, case-sensitivity flag).</li>
   <li>Extension preferences (default popup tab, etc.).</li>
@@ -121,7 +122,7 @@
 
 <h2>What the extension does NOT do</h2>
 <ul>
-  <li><strong>No AI-service calls</strong> are made by any feature in v1.3. The v1.3 built-in &ldquo;AI-content detectors&rdquo; in Word Alerts are local pattern matchers (regex against href strings and a fixed glyph set in visible text), not calls to any AI service. No prompts are sent to any AI provider. No third-party AI SDK (Anthropic, OpenAI, etc.) is bundled into the production build.</li>
+  <li><strong>No AI-service calls</strong> are made by any feature in v1.4. The three built-in &ldquo;AI-content detectors&rdquo; in Word Alerts (introduced across v1.3 and v1.4) are local pattern matchers &mdash; a regex against <code>&lt;a href&gt;</code> strings, a fixed-glyph character class on composer text, and a count of consecutive empty paragraph-level children in the composer &mdash; not calls to any AI service. No prompts are sent to any AI provider. No third-party AI SDK (Anthropic, OpenAI, etc.) is bundled into the production build.</li>
   <li>No analytics, no telemetry, no crash reporting, no user-event tracking.</li>
   <li>No third-party scripts loaded at runtime.</li>
   <li>No outbound network calls outside your Zendesk subdomain.</li>
