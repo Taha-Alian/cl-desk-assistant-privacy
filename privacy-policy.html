@@ -19,7 +19,7 @@
 <body>
 
 <h1>Privacy Policy &mdash; CL Desk Assistant</h1>
-<p class="updated">Last updated: 2026-05-19 (covers v1.7.0)</p>
+<p class="updated">Last updated: 2026-05-19 (covers v1.7.1)</p>
 
 <p>
   CL Desk Assistant (&ldquo;the extension&rdquo;) does not collect, transmit, sell, share,
@@ -27,7 +27,7 @@
   no analytics, no tracking, and no third-party scripts.
 </p>
 
-<h2>What v1.7 ships</h2>
+<h2>What v1.7.1 ships</h2>
 <p>v1.7 keeps the same four productivity tools as v1.2 through v1.6, with feature enhancements layered on top rather than new tools. v1.7 itself adds one new built-in Word Alerts detector (the fifth) that flags the distinctive copy-button layout left behind when an agent pastes plain-text content from an internal chatbot UI (CloudLinux&rsquo;s <code>chatbot-internal</code>, ChatGPT, GitHub Copilot, &hellip;): a standalone <code>Copy code</code> or <code>DownloadCopy code</code> line, plus the language label on the preceding line when present (<code>bash</code>, <code>python</code>, <code>powershell</code>, <code>json</code>, &hellip;). The match is whole-block exact (the block&rsquo;s normalized text must equal the artifact, not contain it) so prose like &ldquo;use bash to run this&rdquo; or &ldquo;press Ctrl+C to copy code&rdquo; does not trip. No network calls, no LLM call &mdash; fully local pattern matching. v1.6 added a &ldquo;Copy article reference&rdquo; button on public Zendesk Help Center article pages. v1.5 introduced the fourth built-in Word Alerts detector that flags pasted Zendesk Help Center article links the customer cannot actually open. v1.4 added WEBP source-file support to the Snippets image pipeline; v1.3 introduced the first three built-in AI-content detectors. <em>New in vX</em> markers below show which version introduced each piece.</p>
 <ul>
   <li><strong>Smart Refresh</strong> &mdash; auto-refresh queue views on a configurable interval. <em>New in v1.3:</em> a catch-up refresh fires immediately when the tab becomes visible again after being hidden, so the queue isn&rsquo;t stale on return. The catch-up only re-runs the same in-page refresh action (clicking the existing refresh button, or reloading the page) &mdash; no new network behavior.</li>
