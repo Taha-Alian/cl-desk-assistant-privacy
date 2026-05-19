@@ -19,7 +19,7 @@
 <body>
 
 <h1>Privacy Policy &mdash; CL Desk Assistant</h1>
-<p class="updated">Last updated: 2026-05-14 (covers v1.4.0)</p>
+<p class="updated">Last updated: 2026-05-19 (covers v1.7.0)</p>
 
 <p>
   CL Desk Assistant (&ldquo;the extension&rdquo;) does not collect, transmit, sell, share,
@@ -27,8 +27,8 @@
   no analytics, no tracking, and no third-party scripts.
 </p>
 
-<h2>What v1.4 ships</h2>
-<p>v1.4 keeps the same four productivity tools as v1.2 and v1.3, with feature enhancements layered on top rather than new tools. v1.4 itself adds WEBP source-file support to the Snippets image pipeline, narrows the v1.3 built-in AI-content detectors to scope to the active reply composer only (URL-gated to ticket-editing and knowledge-base-editing pages), and adds one new built-in detector. <em>New in vX</em> markers below show which version introduced each piece.</p>
+<h2>What v1.7 ships</h2>
+<p>v1.7 keeps the same four productivity tools as v1.2 through v1.6, with feature enhancements layered on top rather than new tools. v1.7 itself adds one new built-in Word Alerts detector (the fifth) that flags the distinctive copy-button layout left behind when an agent pastes plain-text content from an internal chatbot UI (CloudLinux&rsquo;s <code>chatbot-internal</code>, ChatGPT, GitHub Copilot, &hellip;): a standalone <code>Copy code</code> or <code>DownloadCopy code</code> line, plus the language label on the preceding line when present (<code>bash</code>, <code>python</code>, <code>powershell</code>, <code>json</code>, &hellip;). The match is whole-block exact (the block&rsquo;s normalized text must equal the artifact, not contain it) so prose like &ldquo;use bash to run this&rdquo; or &ldquo;press Ctrl+C to copy code&rdquo; does not trip. No network calls, no LLM call &mdash; fully local pattern matching. v1.6 added a &ldquo;Copy article reference&rdquo; button on public Zendesk Help Center article pages. v1.5 introduced the fourth built-in Word Alerts detector that flags pasted Zendesk Help Center article links the customer cannot actually open. v1.4 added WEBP source-file support to the Snippets image pipeline; v1.3 introduced the first three built-in AI-content detectors. <em>New in vX</em> markers below show which version introduced each piece.</p>
 <ul>
   <li><strong>Smart Refresh</strong> &mdash; auto-refresh queue views on a configurable interval. <em>New in v1.3:</em> a catch-up refresh fires immediately when the tab becomes visible again after being hidden, so the queue isn&rsquo;t stale on return. The catch-up only re-runs the same in-page refresh action (clicking the existing refresh button, or reloading the page) &mdash; no new network behavior.</li>
   <li><strong>Find / Replace</strong> &mdash; in-editor find &amp; replace across the active reply. <em>New in v1.3:</em> pressing &ldquo;Replace&rdquo; now walks matches sequentially (replace current, auto-advance to next) instead of always replacing the leftmost match.</li>
@@ -37,8 +37,10 @@
       <li><em>Detect ChatGPT referral/source links</em> (Critical, <em>new in v1.3, composer-scoped in v1.4</em>) &mdash; locally scans <code>&lt;a href&gt;</code> values inside the composer for the substrings <code>chatgpt.com</code> and <code>utm_source=chatgpt</code>. No external lookup, no LLM call, no network traffic; the match is a plain regex on the href string.</li>
       <li><em>Detect AI-style symbols/punctuation</em> (Critical, <em>new in v1.3, composer-scoped in v1.4</em>) &mdash; locally scans composer text for a fixed list of glyphs commonly produced by LLM-drafted output (em dash, reference mark, diamonds, pointer, arrow, small squares, checkmarks). No external lookup, no LLM call; the match is a plain character-class regex.</li>
       <li><em>Detect excessive empty lines</em> (Medium, <em>new in v1.4</em>) &mdash; locally counts runs of three or more consecutive empty paragraph-level elements inside the composer (the most common copy/paste-from-AI artifact). Medium severity does not produce an audible beep. No external lookup, no LLM call.</li>
+      <li><em>Detect non-public Zendesk article links</em> (Critical, <em>new in v1.5</em>) &mdash; flags Zendesk Help Center article URLs pasted into the composer that the recipient cannot actually open. Any URL under your tenant&rsquo;s Zendesk Guide authoring UI (<code>/knowledge/...</code>, which covers both the legacy <code>/knowledge/articles/&lt;id&gt;</code> editor URL and the newer Knowledge unified-editor <code>/knowledge/editor/&lt;ulid&gt;/&lt;locale&gt;</code> URL), any agent-side URL (<code>/agent/...</code>), and any Help Center admin URL (<code>/hc/admin/...</code>) is flagged synchronously by URL shape alone &mdash; no network request, since these paths are agent-only by definition. URLs that match the public Help Center shape <code>/hc/&lt;locale&gt;/articles/&lt;id&gt;</code> additionally require a live unauthenticated HTTPS request to your <strong>same Zendesk tenant</strong> to decide; see the &ldquo;Network calls the extension makes&rdquo; section below for the full description of that request. Cross-tenant <code>*.zendesk.com</code> URLs (a different subdomain than the one the agent is currently composing on) are ignored entirely. No LLM call, no external service.</li>
+      <li><em>Detect AI/copilot formatting artifacts</em> (Critical, <em>new in v1.7</em>) &mdash; locally scans the composer for the distinctive copy-button layout that survives plain-text paste from an internal chatbot UI (CloudLinux <code>chatbot-internal</code>, ChatGPT, GitHub Copilot, &hellip;): a standalone <code>Copy code</code> or <code>DownloadCopy code</code> line, plus the language label on the immediately preceding line when it is one of a fixed list (<code>bash</code>, <code>sh</code>, <code>shell</code>, <code>console</code>, <code>output</code>, <code>terminal</code>, <code>pwsh</code>, <code>powershell</code>, <code>python</code>, <code>js</code>, <code>ts</code>, <code>json</code>, <code>yaml</code>, <code>sql</code>, <code>go</code>, <code>rust</code>, <code>c</code>, <code>cpp</code>, <code>c#</code>, <code>java</code>, <code>kotlin</code>, <code>swift</code>, <code>ruby</code>, <code>php</code>, <code>html</code>, <code>css</code>, <code>xml</code>, <code>dockerfile</code>, <code>nginx</code>, <code>ini</code>, <code>toml</code>, <code>diff</code>, <code>markdown</code>, <code>plaintext</code>, <code>text</code>, and common variants). The match is whole-block exact (the block&rsquo;s normalized text must equal the artifact, not contain it), so prose like &ldquo;use bash to run this&rdquo; or &ldquo;press Ctrl+C to copy code&rdquo; does not trip. No external lookup, no LLM call, no network traffic; the match is a plain regex over the block&rsquo;s normalized text.</li>
     </ul>
-    These detectors are <strong>not</strong> AI features in the &ldquo;sends prompts to an AI service&rdquo; sense &mdash; they are deterministic, local, pattern-based matchers that flag potential AI-content tells before the agent sends a reply. No SDK from any AI provider is bundled into the production build, and no detector result is transmitted off-device.
+    The five detectors are <strong>not</strong> AI features in the &ldquo;sends prompts to an AI service&rdquo; sense &mdash; four of them (ChatGPT links, AI-style symbols, excessive empty lines, AI/copilot formatting artifacts) are deterministic, local, pattern-based matchers that flag potential AI-content tells before the agent sends a reply. The fifth detector (non-public Zendesk article links) is also not an AI feature; it is a deterministic same-tenant HTTPS reachability check whose result is a public/non-public/unknown classification. No SDK from any AI provider is bundled into the production build, and no detector result is transmitted off-device.
   </li>
   <li><strong>Snippets</strong> &mdash; reusable rich-text replies expandable via shortcut+Tab or manually, with variables that resolve at insertion time (<code>{{ticket.id}}</code>, <code>{{ticket.subject}}</code>, <code>{{client.name}}</code>, <code>{{client.email}}</code>, <code>{{user.name}}</code>, <code>{{date.today}}</code>), inline images via paste/drop (PNG/JPEG/GIF/WEBP accepted; WEBP and GIF are transcoded in-browser to JPEG or PNG so the output set stays narrow for downstream email-client compatibility; all images downscaled to max 1024&thinsp;px and compressed in-browser; capped at 256&thinsp;KB per image, 2&thinsp;MB per snippet, 8 images per snippet), and a JSON Backup &amp; Restore card in Settings that exports your snippets, word-alert keywords, Find/Replace last-used inputs, and preferences to a local file you save yourself, and re-imports the same shape on demand.</li>
   <li><strong>Settings</strong> &mdash; default tab, keyboard shortcut link, reset controls, JSON backup &amp; restore.</li>
@@ -52,7 +54,8 @@
 </p>
 <ul>
   <li>Smart Refresh settings (interval, allowed URL prefixes, refresh selector, refresh type, startup mode, active-tab gating). The runtime on/off state and tick counter are stored in <code>chrome.storage.local</code> on this device only and are not synced across browsers.</li>
-  <li>Word-alert keywords (text, severity, whole-word toggle, enabled state), the master enable/disable, the audible-Critical-alert toggle, and the three built-in AI-content-detector toggles (two introduced in v1.3 &mdash; ChatGPT referral links and AI-style symbols; one introduced in v1.4 &mdash; excessive empty lines).</li>
+  <li>Word-alert keywords (text, severity, whole-word toggle, enabled state), the master enable/disable, the audible-Critical-alert toggle, and the five built-in detector toggles (two introduced in v1.3 &mdash; ChatGPT referral links and AI-style symbols; one introduced in v1.4 &mdash; excessive empty lines; one introduced in v1.5 &mdash; non-public Zendesk article links; one introduced in v1.7 &mdash; AI/copilot formatting artifacts).</li>
+  <li><em>New in v1.5:</em> a per-URL classification cache for the non-public-article detector, stored in <code>chrome.storage.session</code> (cleared when the browser quits). Each entry records only a previously-fetched Zendesk Help Center article URL, the classification verdict (<code>public</code> or <code>non-public</code>), and the timestamp at which it was cached. Entries expire after one hour. The cache exists so the extension does not repeat the same reachability check while an agent is editing a draft.</li>
   <li>Snippet library (name, optional shortcut, rich-text body, enabled state). Inline images are stored inside the snippet body as base64-encoded <code>data:</code> URLs &mdash; no separate image files are written, and no external image hosts are contacted.</li>
   <li>Find/Replace last-used inputs (find text, replace text, case-sensitivity flag).</li>
   <li>Extension preferences (default popup tab, etc.).</li>
@@ -89,6 +92,60 @@
   party.
 </p>
 
+<p>
+  <em>New in v1.5:</em> when the &ldquo;Detect non-public Zendesk article links&rdquo;
+  built-in detector is on (the default), and the agent pastes an article URL into the
+  reply composer whose shape matches the public Help Center pattern
+  <code>/hc/&lt;locale&gt;/articles/&lt;id&gt;</code>, the extension&rsquo;s
+  background service worker performs <strong>one additional HTTPS request</strong> to
+  classify the link:
+</p>
+<ul>
+  <li><code>GET https://&lt;your-tenant&gt;.zendesk.com/api/v2/help_center/articles/&lt;id&gt;.json</code>
+    &mdash; Zendesk&rsquo;s public Help Center JSON API for the numeric article ID
+    parsed out of the pasted URL. Locale-agnostic; the API returns the
+    article&rsquo;s default-locale visibility verdict. The request is made with
+    <code>credentials: &#39;omit&#39;</code>, so <strong>no Zendesk session cookies,
+    no authorization headers, and no other credentials are sent</strong>. It is what
+    an anonymous, signed-out browser would receive. The verdict is read from the
+    HTTP status alone: <code>200</code> means the article is visible to anonymous
+    readers (<em>public</em>); <code>401</code>, <code>403</code>, <code>404</code>,
+    or any other non-2xx status means Zendesk withheld the article from the
+    anonymous caller (<em>non-public</em> &mdash; covers drafts, agent-only
+    articles, signed-in-only articles, and user-segment-restricted articles, since
+    Zendesk&rsquo;s API returns 404 for any article not visible to the requester
+    rather than disclosing existence). A network error or 8-second timeout is
+    classified <em>unknown</em> and the link is left unflagged.</li>
+</ul>
+<p>
+  This request is scoped to the <strong>same Zendesk tenant</strong> the agent is
+  currently composing on (the originally-pasted URL&rsquo;s hostname must equal
+  <code>location.host</code>; cross-tenant <code>*.zendesk.com</code> hostnames
+  are skipped). Verdicts are cached locally for one hour in
+  <code>chrome.storage.session</code> so the same URL does not produce repeated
+  requests, and the cache is cleared when the browser quits. Nothing about the
+  request, the response, or the classification is transmitted anywhere outside
+  your browser, and no third party (including the developer) is involved.
+</p>
+
+<p>
+  <em>New in v1.6:</em> on Zendesk Help Center article pages of the shape
+  <code>/hc/&lt;locale&gt;/articles/&lt;id&gt;</code>, the extension uses the
+  same verification call described above to decide whether to mount a small
+  <strong>&ldquo;Copy article reference&rdquo;</strong> button next to the
+  article title. The button only appears for articles the verification
+  classifies as <em>public</em>; restricted articles, drafts, agent/admin URLs
+  and any URL with a <code>?preview=&hellip;</code> query never receive the
+  button. Clicking it writes a rich-HTML anchor (the article title as the
+  visible text, the article URL as the hyperlink target) to your local
+  clipboard, plus the article URL as plain text for paste targets that
+  don&rsquo;t accept rich content. The clipboard write happens entirely in
+  your browser via the standard <code>navigator.clipboard.write</code> API;
+  no additional network call is made beyond the verification described
+  above (which is itself already cached for one hour), no data is
+  transmitted to the extension developer or any third party.
+</p>
+
 <h2>Where the extension runs</h2>
 <p>The extension&rsquo;s content scripts run on:</p>
 <ul>
@@ -122,7 +179,7 @@
 
 <h2>What the extension does NOT do</h2>
 <ul>
-  <li><strong>No AI-service calls</strong> are made by any feature in v1.4. The three built-in &ldquo;AI-content detectors&rdquo; in Word Alerts (introduced across v1.3 and v1.4) are local pattern matchers &mdash; a regex against <code>&lt;a href&gt;</code> strings, a fixed-glyph character class on composer text, and a count of consecutive empty paragraph-level children in the composer &mdash; not calls to any AI service. No prompts are sent to any AI provider. No third-party AI SDK (Anthropic, OpenAI, etc.) is bundled into the production build.</li>
+  <li><strong>No AI-service calls</strong> are made by any feature in v1.5. The three AI-content detectors in Word Alerts (introduced across v1.3 and v1.4) are local pattern matchers &mdash; a regex against <code>&lt;a href&gt;</code> strings, a fixed-glyph character class on composer text, and a count of consecutive empty paragraph-level children in the composer &mdash; not calls to any AI service. The fourth built-in detector (introduced in v1.5, non-public Zendesk article links) is a reachability check against your own Zendesk tenant&rsquo;s Help Center, not an AI call. No prompts are sent to any AI provider. No third-party AI SDK (Anthropic, OpenAI, etc.) is bundled into the production build.</li>
   <li>No analytics, no telemetry, no crash reporting, no user-event tracking.</li>
   <li>No third-party scripts loaded at runtime.</li>
   <li>No outbound network calls outside your Zendesk subdomain.</li>
