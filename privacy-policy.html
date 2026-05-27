@@ -19,7 +19,7 @@
 <body>
 
 <h1>Privacy Policy &mdash; CL Desk Assistant</h1>
-<p class="updated">Last updated: 2026-05-19 (covers v1.7.1)</p>
+<p class="updated">Last updated: 2026-05-27 (covers v1.7.4)</p>
 
 <p>
   CL Desk Assistant (&ldquo;the extension&rdquo;) does not collect, transmit, sell, share,
@@ -27,7 +27,20 @@
   no analytics, no tracking, and no third-party scripts.
 </p>
 
-<h2>What v1.7.1 ships</h2>
+<h2>What v1.7.4 ships</h2>
+<p><em>New in v1.7.4:</em> the &ldquo;Detect non-public Zendesk article links&rdquo; detector now uses your existing authenticated Zendesk session (instead of an anonymous request) to read each candidate article&rsquo;s <code>user_segment_id</code> field &mdash; Zendesk&rsquo;s per-article visibility setting. The detector applies a <strong>customer-accessibility</strong> rule: articles set to &ldquo;Visible to everyone&rdquo; (tier 1) or &ldquo;Signed-in users&rdquo; (tier 2) are treated as customer-accessible and NOT flagged; articles set to a restricted segment or to agents-and-admins only are flagged Critical. The request stays on your own Zendesk tenant (or the explicitly allowlisted TuxCare support tenant), uses your existing session cookies (no extra credentials sent, no cookies created), and the response is read in memory only.</p>
+<p>To distinguish tier 2 (&ldquo;Signed-in users&rdquo;) from tiers 3 and 4 (restricted segments, agents-and-admins), the extension performs <strong>one additional authenticated request per Zendesk tenant per browser session</strong> against <code>GET /api/v2/help_center/user_segments/applicable.json</code> &mdash; the tenant-local endpoint that returns the user segments the currently signed-in user belongs to. The extension reads exactly <strong>one integer</strong> from the response: the numeric ID of the built-in &ldquo;Signed-in users&rdquo; segment (identified by Zendesk&rsquo;s stable API enums <code>built_in === true</code> and <code>user_type === &lsquo;signed_in_users&rsquo;</code>). Everything else in the response is read in memory and discarded.</p>
+<p><strong>Strict data minimization</strong> (locked policy for v1.7.4):</p>
+<ul>
+  <li><strong>No verdict cache.</strong> Each article URL the agent pastes is classified by a fresh authenticated request to Zendesk&rsquo;s article JSON endpoint; verdicts are NOT written to <code>chrome.storage</code>. The classification result is held in memory in the active tab for the lifetime of the current page only; a page reload re-classifies fresh. This is intentional: a Zendesk admin can change an article&rsquo;s visibility at any moment, and a cached verdict would risk being out of date.</li>
+  <li><strong>One persistent integer per Zendesk host per browser session.</strong> The discovered built-in &ldquo;Signed-in users&rdquo; segment ID is memoized in <code>chrome.storage.session</code> (key <code>cl.zd_signed_in_user_segments.v1</code>) so the bootstrap call above does not repeat for every article classification. The cache is cleared when the browser quits. This integer is tenant-level metadata (every signed-in user on the tenant resolves the same value); it is not session-specific, not user-specific, not a token.</li>
+  <li><strong>Nothing else is persisted.</strong> No article titles, bodies, slugs, authors, created/updated dates, segment IDs per URL, permission group IDs, or any other Zendesk article or segment metadata is ever written to extension storage. No data is transmitted off-device or shared with any third party (including the developer).</li>
+</ul>
+
+<h2>What v1.7.3 ships</h2>
+<p><em>New in v1.7.3:</em> the v1.5 &ldquo;Detect non-public Zendesk article links&rdquo; detector and the v1.6 &ldquo;Copy article reference&rdquo; button now recognize the TuxCare support Help Center (<code>support.tuxcare.com</code>) in addition to your own Zendesk tenant. The recognized-host list is hardcoded in the build (<code>cloudlinux.zendesk.com</code> and <code>support.tuxcare.com</code> at v1.7.3); other Zendesk Help Center hosts continue to be ignored. The network call to verify TuxCare article visibility uses the same anonymous (<code>credentials: 'omit'</code>) Help Center JSON API pattern documented below for CloudLinux articles &mdash; no cookies are sent, no third party is contacted, no data leaves your device beyond the request URL itself. The v1.7.3 manifest adds <code>https://support.tuxcare.com/*</code> to <code>host_permissions</code> to allow the anonymous fetch from the background service worker; this is the only permission change in v1.7.3.</p>
+
+<h2>What v1.7.2 ships</h2>
 <p>v1.7 keeps the same four productivity tools as v1.2 through v1.6, with feature enhancements layered on top rather than new tools. v1.7 itself adds one new built-in Word Alerts detector (the fifth) that flags the distinctive copy-button layout left behind when an agent pastes plain-text content from an internal chatbot UI (CloudLinux&rsquo;s <code>chatbot-internal</code>, ChatGPT, GitHub Copilot, &hellip;): a standalone <code>Copy code</code> or <code>DownloadCopy code</code> line, plus the language label on the preceding line when present (<code>bash</code>, <code>python</code>, <code>powershell</code>, <code>json</code>, &hellip;). The match is whole-block exact (the block&rsquo;s normalized text must equal the artifact, not contain it) so prose like &ldquo;use bash to run this&rdquo; or &ldquo;press Ctrl+C to copy code&rdquo; does not trip. No network calls, no LLM call &mdash; fully local pattern matching. v1.6 added a &ldquo;Copy article reference&rdquo; button on public Zendesk Help Center article pages. v1.5 introduced the fourth built-in Word Alerts detector that flags pasted Zendesk Help Center article links the customer cannot actually open. v1.4 added WEBP source-file support to the Snippets image pipeline; v1.3 introduced the first three built-in AI-content detectors. <em>New in vX</em> markers below show which version introduced each piece.</p>
 <ul>
   <li><strong>Smart Refresh</strong> &mdash; auto-refresh queue views on a configurable interval. <em>New in v1.3:</em> a catch-up refresh fires immediately when the tab becomes visible again after being hidden, so the queue isn&rsquo;t stale on return. The catch-up only re-runs the same in-page refresh action (clicking the existing refresh button, or reloading the page) &mdash; no new network behavior.</li>
@@ -43,6 +56,7 @@
     The five detectors are <strong>not</strong> AI features in the &ldquo;sends prompts to an AI service&rdquo; sense &mdash; four of them (ChatGPT links, AI-style symbols, excessive empty lines, AI/copilot formatting artifacts) are deterministic, local, pattern-based matchers that flag potential AI-content tells before the agent sends a reply. The fifth detector (non-public Zendesk article links) is also not an AI feature; it is a deterministic same-tenant HTTPS reachability check whose result is a public/non-public/unknown classification. No SDK from any AI provider is bundled into the production build, and no detector result is transmitted off-device.
   </li>
   <li><strong>Snippets</strong> &mdash; reusable rich-text replies expandable via shortcut+Tab or manually, with variables that resolve at insertion time (<code>{{ticket.id}}</code>, <code>{{ticket.subject}}</code>, <code>{{client.name}}</code>, <code>{{client.email}}</code>, <code>{{user.name}}</code>, <code>{{date.today}}</code>), inline images via paste/drop (PNG/JPEG/GIF/WEBP accepted; WEBP and GIF are transcoded in-browser to JPEG or PNG so the output set stays narrow for downstream email-client compatibility; all images downscaled to max 1024&thinsp;px and compressed in-browser; capped at 256&thinsp;KB per image, 2&thinsp;MB per snippet, 8 images per snippet), and a JSON Backup &amp; Restore card in Settings that exports your snippets, word-alert keywords, Find/Replace last-used inputs, and preferences to a local file you save yourself, and re-imports the same shape on demand.</li>
+  <li><strong>Queue highlights</strong> &mdash; <em>new in v1.7.2.</em> On Zendesk view pages (URLs under <code>/agent/filters/</code>), each ticket row whose Assignee column matches a user-configured agent name is highlighted with a subtle left-edge accent stripe. The match is purely local DOM read: the extension walks the visible rows of the view table and compares each row&rsquo;s Assignee cell text to the configured list of names (case-insensitive, exact). No network call, no LLM call, no external lookup; the configured list and chosen accent color live in <code>chrome.storage.sync</code> alongside the other small settings. If the agent hides the Assignee column from a view, the feature silently does nothing on that view.</li>
   <li><strong>Settings</strong> &mdash; default tab, keyboard shortcut link, reset controls, JSON backup &amp; restore.</li>
 </ul>
 
@@ -58,6 +72,7 @@
   <li><em>New in v1.5:</em> a per-URL classification cache for the non-public-article detector, stored in <code>chrome.storage.session</code> (cleared when the browser quits). Each entry records only a previously-fetched Zendesk Help Center article URL, the classification verdict (<code>public</code> or <code>non-public</code>), and the timestamp at which it was cached. Entries expire after one hour. The cache exists so the extension does not repeat the same reachability check while an agent is editing a draft.</li>
   <li>Snippet library (name, optional shortcut, rich-text body, enabled state). Inline images are stored inside the snippet body as base64-encoded <code>data:</code> URLs &mdash; no separate image files are written, and no external image hosts are contacted.</li>
   <li>Find/Replace last-used inputs (find text, replace text, case-sensitivity flag).</li>
+  <li><em>New in v1.7.2:</em> Queue-highlights configuration (master enable/disable, list of agent display names, accent color as a 6-digit hex string).</li>
   <li>Extension preferences (default popup tab, etc.).</li>
 </ul>
 <p>
@@ -93,7 +108,7 @@
 </p>
 
 <p>
-  <em>New in v1.5:</em> when the &ldquo;Detect non-public Zendesk article links&rdquo;
+  <em>New in v1.5</em> (<em>superseded by v1.7.4 &mdash; see &ldquo;What v1.7.4 ships&rdquo; above; this paragraph describes the historical v1.5&ndash;v1.7.3 behavior</em>): when the &ldquo;Detect non-public Zendesk article links&rdquo;
   built-in detector is on (the default), and the agent pastes an article URL into the
   reply composer whose shape matches the public Help Center pattern
   <code>/hc/&lt;locale&gt;/articles/&lt;id&gt;</code>, the extension&rsquo;s
