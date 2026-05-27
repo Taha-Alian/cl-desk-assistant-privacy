@@ -19,13 +19,16 @@
 <body>
 
 <h1>Privacy Policy &mdash; CL Desk Assistant</h1>
-<p class="updated">Last updated: 2026-05-27 (covers v1.7.5)</p>
+<p class="updated">Last updated: 2026-05-27 (covers v1.7.6)</p>
 
 <p>
   CL Desk Assistant (&ldquo;the extension&rdquo;) does not collect, transmit, sell, share,
   or store any user data outside the user&rsquo;s own browser. There is no telemetry,
   no analytics, no tracking, and no third-party scripts.
 </p>
+
+<h2>What v1.7.6 ships</h2>
+<p><em>New in v1.7.6:</em> the &ldquo;AI-style symbols / punctuation&rdquo; built-in Word Alerts detector now flags 9 additional emoji codepoints in addition to the v1.3 baseline typographic tells. The expanded list: <span style="font-family:monospace">&mdash; &#x203B; &#x25C6; &#x25C7; &#x25BA; &rarr; &#x25AA; &#x25AB; &#10003; &#10004; &#x2705; &#x26A0; &#x274C; &#x2139; &#x1F680; &#x1F916; &#x1F4A1; &#x1F4CC; &#x1F50D;</span> (typographic + the LLM-favored emoji set: white-heavy-check, warning, cross, info, rocket, robot, light-bulb, pushpin, magnifying-glass). The detector remains <strong>fully local</strong>: pattern matching over the visible text of your reply draft, no network calls, no data sent anywhere. No new data flows vs v1.7.5; no new permissions; no new hosts; no change to what is stored.</p>
 
 <h2>What v1.7.5 ships</h2>
 <p><em>New in v1.7.5:</em> bug-fix release. The popup&rsquo;s Queue Highlights, Word Alerts, Snippets, and Find / Replace tabs each debounce their save-to-<code>chrome.storage</code> by ~250&ndash;300&thinsp;ms while you edit. In v1.7.2&ndash;v1.7.4, closing the popup within that debounce window silently dropped the in-flight edit. v1.7.5 adds a flush-on-popup-close path (via the standard <code>pagehide</code> and <code>visibilitychange</code> browser events) so the latest edit is committed to local storage even when the popup is closed quickly. <strong>No new data flows, no new permissions, no new hosts, no new network calls</strong>; only the timing of an already-promised local-storage write changes.</p>
