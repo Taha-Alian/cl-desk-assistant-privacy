@@ -75,7 +75,7 @@
 <ul>
   <li>Smart Refresh settings (interval, allowed URL prefixes, refresh selector, refresh type, startup mode, active-tab gating). The runtime on/off state and tick counter are stored in <code>chrome.storage.local</code> on this device only and are not synced across browsers.</li>
   <li>Word-alert keywords (text, severity, whole-word toggle, enabled state), the master enable/disable, the audible-Critical-alert toggle, and the five built-in detector toggles (two introduced in v1.3 &mdash; ChatGPT referral links and AI-style symbols; one introduced in v1.4 &mdash; excessive empty lines; one introduced in v1.5 &mdash; non-public Zendesk article links; one introduced in v1.7 &mdash; AI/copilot formatting artifacts).</li>
-  <li><em>New in v1.5:</em> a per-URL classification cache for the non-public-article detector, stored in <code>chrome.storage.session</code> (cleared when the browser quits). Each entry records only a previously-fetched Zendesk Help Center article URL, the classification verdict (<code>public</code> or <code>non-public</code>), and the timestamp at which it was cached. Entries expire after one hour. The cache exists so the extension does not repeat the same reachability check while an agent is editing a draft.</li>
+  <li><em>v1.5&ndash;v1.7.3 (superseded by v1.7.4):</em> the non-public-article detector previously kept a per-URL verdict cache in <code>chrome.storage.session</code> with a one-hour expiry. <strong>As of v1.7.4 there is no per-URL verdict cache</strong> &mdash; every pasted article URL is re-classified by a fresh authenticated request, because an admin can change an article&rsquo;s visibility at any moment. The only thing now persisted for this detector is a single per-tenant, per-browser-session integer (the built-in &ldquo;Signed-in users&rdquo; segment ID, key <code>cl.zd_signed_in_user_segments.v1</code> in <code>chrome.storage.session</code>); see the v1.7.4 section above.</li>
   <li>Snippet library (name, optional shortcut, rich-text body, enabled state). Inline images are stored inside the snippet body as base64-encoded <code>data:</code> URLs &mdash; no separate image files are written, and no external image hosts are contacted.</li>
   <li>Find/Replace last-used inputs (find text, replace text, case-sensitivity flag).</li>
   <li><em>New in v1.7.2:</em> Queue-highlights configuration (master enable/disable, list of agent display names, accent color as a 6-digit hex string).</li>
@@ -220,7 +220,9 @@
 <h2>Contact</h2>
 <p>
   Issues, questions, or feedback:
-  <a href="https://github.com/Taha-Alian/zendesk-cl-extension/issues">https://github.com/Taha-Alian/zendesk-cl-extension/issues</a>
+  <a href="mailto:tali@cloudlinux.com">tali@cloudlinux.com</a>.
+  CloudLinux team members can also use the internal
+  &ldquo;CL Desk Assistant &mdash; Issue &amp; Feedback Collector&rdquo; page on Slite.
 </p>
 
 </body>
