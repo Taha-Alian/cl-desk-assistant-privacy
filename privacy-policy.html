@@ -19,13 +19,16 @@
 <body>
 
 <h1>Privacy Policy &mdash; CL Desk Assistant</h1>
-<p class="updated">Last updated: 2026-05-27 (covers v1.7.6)</p>
+<p class="updated">Last updated: 2026-06-12 (covers v1.7.7)</p>
 
 <p>
   CL Desk Assistant (&ldquo;the extension&rdquo;) does not collect, transmit, sell, share,
   or store any user data outside the user&rsquo;s own browser. There is no telemetry,
   no analytics, no tracking, and no third-party scripts.
 </p>
+
+<h2>What v1.7.7 ships</h2>
+<p><em>New in v1.7.7:</em> security-hardening release; no new user-facing features. (1) The internal messaging bridge between the extension&rsquo;s content script and the page now rejects messages from any other frame and addresses replies to the page&rsquo;s own origin only &mdash; defense-in-depth; no behavior change. (2) Importing a JSON backup is now atomic (a failed import restores your previous data) and the confirmation dialog states explicitly how much existing data would be replaced or deleted. (3) Smart Refresh&rsquo;s full-page mode refuses to run on ticket pages so it can never discard an unsaved reply, and enforces a 10-second minimum interval. (4) The never-shipped, feature-flagged AI integration (and the third-party AI SDK it referenced) was <strong>removed from the codebase entirely</strong> &mdash; the &ldquo;no AI SDK is bundled&rdquo; statement below is now structurally true rather than build-configuration-dependent. (5) The Contact address below changed to a monitored work address. <strong>No new data flows, no new permissions, no new hosts, no new network calls, and nothing new is stored.</strong></p>
 
 <h2>What v1.7.6 ships</h2>
 <p><em>New in v1.7.6:</em> the &ldquo;AI-style symbols / punctuation&rdquo; built-in Word Alerts detector now flags 9 additional emoji codepoints in addition to the v1.3 baseline typographic tells. The expanded list: <span style="font-family:monospace">&mdash; &#x203B; &#x25C6; &#x25C7; &#x25BA; &rarr; &#x25AA; &#x25AB; &#10003; &#10004; &#x2705; &#x26A0; &#x274C; &#x2139; &#x1F680; &#x1F916; &#x1F4A1; &#x1F4CC; &#x1F50D;</span> (typographic + the LLM-favored emoji set: white-heavy-check, warning, cross, info, rocket, robot, light-bulb, pushpin, magnifying-glass). The detector remains <strong>fully local</strong>: pattern matching over the visible text of your reply draft, no network calls, no data sent anywhere. No new data flows vs v1.7.5; no new permissions; no new hosts; no change to what is stored.</p>
